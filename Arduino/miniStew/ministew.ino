@@ -1,8 +1,8 @@
 #define pi 3.1415
 #include <Servo.h> 
-#include "..\..\..\LynxStructure\lynxstructure.h"
-#include "..\..\..\LynxStructure\lynxuartarduino.h"
-#include "..\..\..\LynxStructure\stewartcontrol.h"
+#include "lynxstructure.h"
+#include "lynxuartarduino.h"
+#include "stewartcontrol.h"
 
 using namespace LynxLib;
 
@@ -99,14 +99,14 @@ void loop()
 
   if (updateInfo.state == eNewDataReceived)
   {
-    AlphaCalc(stewartControl.setpointX,stewartControl.setpointY,stewartControl.setpointZ+12.0, stewartControl.setpointRoll, stewartControl.setpointPitch, stewartControl.setpointYaw);
+   // AlphaCalc(stewartControl.setpointX,stewartControl.setpointY,stewartControl.setpointZ+12.0, stewartControl.setpointRoll, stewartControl.setpointPitch, stewartControl.setpointYaw);
  
-    Servo1.write(Offset_1 + 90 + alpha1*90/pi);
-    Servo2.write(Offset_2 + 90 + alpha2*90/pi);
-    Servo3.write(Offset_3 + 90 + alpha3*90/pi);
-    Servo4.write(Offset_4 + 90 + alpha4*90/pi);
-    Servo5.write(Offset_5 + 90 + alpha5*90/pi);
-    Servo6.write(Offset_6 + 90 + alpha6*90/pi);
+   // Servo1.write(Offset_1 + 90 + alpha1*90/pi);
+    //Servo2.write(Offset_2 + 90 + alpha2*90/pi);
+    //Servo3.write(Offset_3 + 90 + alpha3*90/pi);
+    //Servo4.write(Offset_4 + 90 + alpha4*90/pi);
+   // Servo5.write(Offset_5 + 90 + alpha5*90/pi);
+   // Servo6.write(Offset_6 + 90 + alpha6*90/pi);
 
       stewartFeedback.feedbackX = alpha1;
 
@@ -119,9 +119,13 @@ void loop()
       stewartFeedback.feedbackPitch = alpha5;
 
       stewartFeedback.feedbackYaw = alpha6;
+
+      stewartFeedback.imuRoll = 1.2;
+
+      stewartFeedback.imuPitch = 2.4;
     
 
-    uart.send(stewartFeedback.lynxId);
+    uart.send(stewartFeedback.lynxId());
     
   }
 }

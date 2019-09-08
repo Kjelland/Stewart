@@ -1,6 +1,6 @@
 #include "lynxuartarduino.h"
 
-bool LynxUartArduino::open(int port, int baudRate)
+bool LynxUartArduino::open(int port, unsigned long baudRate)
 {
 	if (_open)
 		this->close();
@@ -87,6 +87,17 @@ void LynxUartArduino::close()
 
 	_open = false;
 }
+
+//bool LynxUartArduino::periodicTransmitStart(const LynxId & lynxId)
+//{
+//
+//
+//	return false;
+//}
+//
+//void LynxUartArduino::periodicTransmitStop(const LynxId & lynxId)
+//{
+//}
 
 int LynxUartArduino::read(int count)
 {
@@ -261,4 +272,9 @@ int LynxUartArduino::bytesAvailable() const
 	}
 
 	return 0;
+}
+
+uint32_t LynxUartArduino::getMillis() const
+{
+	return millis();
 }

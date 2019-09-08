@@ -1,3 +1,4 @@
+// #include "D:\Visual Studio Projects\Lynx Test V2\Lynx Test V2\pch.h"
 #include "lynxstructure.h"
 
 namespace LynxLib
@@ -5,6 +6,475 @@ namespace LynxLib
 #ifdef LYNX_INCLUDE_EXCEPTIONS
     const char * LynxMessages::outOfBoundsMsg = "Index out of bounds";
 #endif // LYNX_INCLUDE_EXCEPTIONS
+	
+	//-----------------------------------------------------------------------------------------------------------
+	//------------------------------------------ LynxString -----------------------------------------------------
+	//-----------------------------------------------------------------------------------------------------------
+
+	LynxString::LynxString()
+	{
+		_string = LYNX_NULL;
+		_count = 0;
+		_reservedCount = 0;
+	}
+
+	LynxString::LynxString(int size) : LynxString()
+	{
+		this->reserve(size + 1);
+	}
+
+	LynxString::LynxString(const char * const other, int maxLength) : LynxString()
+	{
+		int copyCount = findTermChar(other, maxLength);
+
+		if (copyCount < 0)
+			copyCount = maxLength;
+		
+		// Removed to make it possible to create empty string
+		// if (copyCount < 1) // nothing to copy
+		// 	return;
+
+		this->reserve(copyCount + 1);
+
+		if (copyCount > 0)
+			memcpy(_string, other, copyCount);
+		
+		_string[copyCount] = '\0';
+		_count = copyCount + 1;
+	}
+
+	LynxString::LynxString(const LynxString & other) : LynxString()
+	{
+		*this = other;
+	}
+
+	LynxString::~LynxString()
+	{
+		if (_string != LYNX_NULL)
+		{
+			delete[] _string;
+			_string = LYNX_NULL;
+		}
+	}
+
+	const char & LynxString::at(int index) const
+	{
+		return _string[index];
+	}
+
+	char & LynxString::first()
+	{
+		return _string[0];
+	}
+
+	const char & LynxString::first() const
+	{
+		return _string[0];
+	}
+
+	char & LynxString::last()
+	{
+		return _string[_count - 2];
+	}
+
+	const char & LynxString::last() const
+	{
+		return _string[_count - 2];
+	}
+
+	int LynxString::count() const
+	{
+		if (_count < 1)
+			return 0;
+
+		return (_count - 1);
+	}
+	
+	void LynxString::clear()
+	{
+		this->reserve(1);
+		_string[0] = '\0';
+		_count = 1;
+	}
+
+	const LynxString & LynxString::operator=(const LynxString & other)
+	{
+		if (&other == this)
+			return *this;
+		
+		if (other._count < 2)
+		{ 
+			this->reserve(1);
+			_string[0] = '\0';
+			_count = 1;
+		}
+		else
+		{
+			this->reserve(other._count);
+			memcpy(_string, other._string, other._count);
+			_count = other._count;
+		}
+		
+		return *this;
+	}
+
+	const LynxString & LynxString::operator=(const char * const other)
+	{
+		int copySize = findTermChar(other) + 1;
+
+		if (copySize < 1)
+		{
+			this->reserve(1);
+			_string[0] = '\0';
+			_count = 1;
+		}
+		else
+		{ 
+			this->reserve(copySize);
+			memcpy(_string, other, copySize);
+			_count = copySize;
+		}
+
+		return *this;
+	}
+
+	void LynxString::operator+=(const char & other)
+	{
+		this->append(other);
+	}
+
+	void LynxString::operator+=(const LynxString & other)
+	{
+		this->append(other);
+	}
+
+	void LynxString::operator+=(const char * const other)
+	{
+		this->append(other);
+	}
+
+	LynxString LynxString::operator+(const char & other)
+	{
+		LynxString temp(*this);
+		temp.append(other);
+		return temp;
+	}
+
+	LynxString LynxString::operator+(const LynxString & other)
+	{
+		LynxString temp(*this);
+		temp.append(other);
+		return temp;
+	}
+
+	LynxString LynxString::operator+(const char * const other)
+	{
+		LynxString temp(*this);
+		temp.append(other);
+		return temp;
+	}
+
+	LynxString::operator const char*const() const
+	{
+		if (_count < 2)
+			return "";
+
+		return _string;
+	}
+
+	void LynxString::reserve(int size)
+	{
+		_count = 0;
+
+		if (size <= _reservedCount)
+			return;
+
+		if (_string != LYNX_NULL)
+		{ 
+			delete[] _string;
+			_string = LYNX_NULL;
+		}
+
+		_reservedCount = size;
+		_string = new char[_reservedCount];
+	}
+
+	void LynxString::resize(int size)
+	{
+		if ((size + 1) <= _reservedCount)
+			return;
+
+		_reservedCount = size + 1;
+		if (_count < 2) // Nothing to copy
+		{
+			if (_string != LYNX_NULL)
+				delete[] _string;
+			
+			_string = new char[_reservedCount];
+		}
+		else // Data must be copied
+		{ 
+			char * oldString = _string;
+
+			_string = new char[_reservedCount];
+
+			memcpy(_string, oldString, _count);
+
+			delete[] oldString;
+			oldString = LYNX_NULL;
+		}
+	}
+
+	LynxString LynxString::subString(int startIndex, int endIndex)
+	{
+		if ((startIndex < 0) || (endIndex >= (_count - 1)) || (startIndex > endIndex))
+			return LynxString();
+
+		int copySize = endIndex - startIndex + 1;
+
+		LynxString temp(copySize);
+		memcpy(temp._string, &(_string[startIndex]), copySize);
+		temp._string[copySize] = '\0';
+		temp._count = copySize + 1;
+
+		return temp;
+	}
+
+	void LynxString::append(const char & other)
+	{
+		if (_count == 0)
+			_count++;
+		this->resize(_count);
+	
+		_string[_count - 1] = other;
+		_string[_count] = '\0';
+		_count++;
+	}
+
+	void LynxString::append(const LynxString & other)
+	{
+		if (other._count < 2) // nothing to copy
+			return;
+
+		if (_count == 0)
+			_count++;
+
+		this->resize(_count + other._count - 2);
+		memcpy(&(_string[_count - 1]), other._string, other._count);
+		_count = _count + other._count - 1;
+	}
+
+	void LynxString::append(const char * const other, int maxLength)
+	{
+		int copyCount = findTermChar(other, maxLength);
+		if (copyCount < 0)
+			copyCount = maxLength;
+
+		if (copyCount < 1) // nothing to copy
+			return;
+
+		if (_count == 0)
+			_count++;
+
+		this->resize(_count + copyCount - 1);
+		memcpy(&(_string[_count - 1]), other, copyCount);
+		_string[_count + copyCount - 1] = '\0';
+		_count = _count + copyCount;
+	}
+
+	void LynxString::reverse(int indexFrom, int indexTo)
+	{
+		if (indexFrom < 0)
+			indexFrom = 0;
+		if (indexTo < 0)
+			indexTo = _count - 2;
+
+		if ((indexFrom >= indexTo) || (indexTo > (_count - 2)))
+			return;
+
+		int revCount = (indexTo - indexFrom + 1);
+		if (revCount < 2)
+			return;
+		
+		int halfCount = revCount / 2;
+
+		char tempChar;
+		for (int i = 0; i < halfCount; i++)
+		{
+			tempChar = _string[indexFrom + i];
+			_string[indexFrom + i] = _string[indexTo - i];
+			_string[indexTo - i] = tempChar;
+		}
+
+	}
+
+	LynxString LynxString::number(int64_t num, int base)
+	{
+		LynxString temp(64);
+		LynxString::numberInt<int64_t>(num, temp, base);
+		return temp;
+	}
+
+	LynxString LynxString::number(uint64_t num, int base)
+	{
+		LynxString temp(64);
+		LynxString::numberInt<uint64_t>(num, temp, base);
+		return temp;
+	}
+
+	LynxString LynxString::number(int32_t num, int base)
+	{
+		LynxString temp(32);
+		LynxString::numberInt<int64_t>(int64_t(num), temp, base);
+		return temp;
+	}
+
+	LynxString LynxString::number(uint32_t num, int base)
+	{
+		LynxString temp(32);
+		LynxString::numberInt<int64_t>(int64_t(num), temp, base);
+		return temp;
+	}
+
+	LynxString LynxString::number(double num, int precision)
+	{
+		LynxString tempStr(99);
+		double numAbs = fabs(num);
+
+		if ((numAbs > 1000) || (numAbs < 0.001))
+		{
+			LynxString::engNumber(num, tempStr, precision);
+		}
+		else 
+		{
+			LynxString::decimalNumber(num, tempStr, precision);
+		}
+		
+		return tempStr;
+	}
+
+	void LynxString::remove(int indexFrom, int indexTo)
+	{
+		if (indexTo < 0)
+			indexTo = indexFrom;
+
+		if ((indexFrom < 0) || (indexFrom > (_count - 2)) || (indexTo > (_count - 2)) || (indexTo < indexFrom))
+			return;
+		
+		memmove((_string + indexFrom), (_string + indexTo + 1), (_count - indexTo - 1));
+
+		_count -= (indexTo - indexFrom + 1);
+	}
+
+	void LynxString::removeFrom(int index)
+	{
+		if ((index < 0) || (index > (_count - 2)))
+			return;
+
+		_string[index] = '\0';
+		_count = index + 1;
+	}
+
+	void LynxString::removeTo(int index)
+	{
+		if (index < 0)
+			return;
+
+		this->remove(0, index);
+	}
+
+	const char * LynxString::toCharArray() const
+	{
+		if (_count < 1)
+			return "";
+
+		return _string;
+	}
+
+	int LynxString::findTermChar(const char * str, int maxLength)
+	{
+		for (int i = 0; i < maxLength; i++)
+		{
+			if (str[i] == '\0')
+			{
+				return i;
+			}
+		}
+
+		return -1;
+	}
+
+	void LynxString::decimalNumber(double num, LynxString & strRef, int precision)
+	{
+		bool sign = (num < 0);
+		int64_t intPart = int64_t(fabs(num));
+		double fracPart = fabs(num - double(intPart));
+
+		if (sign)
+			strRef += '-';
+
+		LynxString::numberInt<int64_t>(intPart, strRef);
+		precision -= strRef.count();
+
+		if (sign)
+		{ 
+			precision++;
+			if (strRef.at(1) == '0')
+				precision++;
+		}
+		else if (strRef.at(0) == '0')
+				precision++;
+
+		if (precision > 0)
+		{
+			strRef += '.';
+
+			if (fracPart == 0)
+			{
+				while (precision > 0)
+				{
+					strRef += '0';
+					precision--;
+				}
+			}
+			else
+			{ 
+				double targetPrecision = pow(10, (precision - 1));
+
+				while (fracPart < targetPrecision)
+				{
+					fracPart *= 10;
+					if (fracPart < 1)
+					{
+						strRef += '0';
+						// targetPrecision *= 10;
+					}
+				}
+
+				LynxString::numberInt<int64_t>(int64_t(fracPart), strRef);
+			}
+		}
+	}
+
+	void LynxString::engNumber(double num, LynxString & strRef, int precision)
+	{
+		int logNum = int(log10(fabs(num)));
+		if (logNum < 0)
+			logNum--;
+
+		double dispNum = num / pow(10, logNum);
+
+		LynxString::decimalNumber(dispNum, strRef, precision);
+
+		strRef += 'e';
+		LynxString::numberInt<int>(logNum, strRef);
+	}
+
+	char & LynxString::operator[](int index)
+	{
+		return _string[index];
+	}
+
 
 	//-----------------------------------------------------------------------------------------------------------
 	//-------------------------------------------- LynxType -----------------------------------------------------
@@ -16,55 +486,91 @@ namespace LynxLib
 	{
 		if (_endianness == eNotSet)
 		{
-			_data._var_i64 = 1;
-			if (_data.bytes[0] == 1)
+			LynxUnion endiannessCheck;
+
+			endiannessCheck._var_i64 = 1;
+			if (endiannessCheck.bytes[0] == 1)
 				_endianness = eLittleEndian;
 			else
 				_endianness = eBigEndian;
 		}
 
 		_dataType = eInvalidType;
-		_data._var_i64 = 0;
+		_var = LYNX_NULL;
+		_str = LYNX_NULL;
 	}
 
 	LynxType::LynxType(E_LynxDataType dataType) : LynxType()
 	{
+		this->init(dataType);
+	}
+
+	LynxType::~LynxType()
+	{
+		if (_var != LYNX_NULL)
+			delete _var;
+
+		if (_str != LYNX_NULL)
+			delete _str;
+	}
+
+	void LynxType::init(E_LynxDataType dataType)
+	{
 		_dataType = dataType;
+		if (_dataType > eInvalidType)
+		{
+			if (_dataType < eString)
+				_var = new LynxUnion();
+			else if (_dataType == eString)
+				_str = new LynxString("");
+		}
 	}
 
     int LynxType::toArray(LynxByteArray & buffer, E_LynxState & state) const
 	{
-		int localSize = this->localSize();
         int transferSize = this->transferSize();
 
         LynxByteArray tempBuffer(transferSize);
 
-		switch (LynxType::endianness())
+		if ((_dataType > eInvalidType) && (_dataType < eString))
 		{
-		case LynxLib::eBigEndian:
-            for (int i = 0; i < localSize; i++)
+			int localSize = this->localSize();
+
+			switch (LynxType::endianness())
 			{
-                tempBuffer.append(_data.bytes[int(SIZE_64) - i - 1]);
+			case LynxLib::eBigEndian:
+				for (int i = 0; i < localSize; i++)
+				{
+					tempBuffer.append(_var->bytes[int(SIZE_64) - i - 1]);
+				}
+				break;
+			case LynxLib::eLittleEndian:
+				for (int i = 0; i < localSize; i++)
+				{
+					tempBuffer.append(_var->bytes[i]);
+				}
+				break;
+			default:
+				state = eEndiannessNotSet;
+				return 0;
 			}
-			break;
-		case LynxLib::eLittleEndian:
-            for (int i = 0; i < localSize; i++)
+
+			splitArray(tempBuffer, transferSize);
+
+			if (tempBuffer.count() != transferSize)
 			{
-                tempBuffer.append(_data.bytes[i]);
+				state = eSplitArrayFailed;
+				return 0;
 			}
-			break;
-		default:
-            state = eEndiannessNotSet;
-            return 0;
 		}
-
-        splitArray(tempBuffer, transferSize);
-
-        if(tempBuffer.count() != transferSize)
-        {
-            state = eSplitArrayFailed;
-            return 0;
-        }
+		else if (_dataType == eString)
+		{
+			tempBuffer.append(char(transferSize - 1));				// Add the size
+			tempBuffer.append(_str->toCharArray(), _str->count());	// Add the string
+		}
+		else
+			return 0;
+		
 
         buffer.append(tempBuffer);
 
@@ -72,46 +578,80 @@ namespace LynxLib
 	}
 
     int LynxType::fromArray(const LynxByteArray & buffer, int startIndex, E_LynxState & state)
-	{
-		int localSize = this->localSize();
-        int transferSize = this->transferSize();
+	{        	
+		int transferSize;
 
-        LynxByteArray tempBuffer(transferSize);
-        buffer.subList(tempBuffer, startIndex, (startIndex + transferSize - 1));
-
-        int count = mergeArray(tempBuffer, localSize);
-
-        if (count != localSize)
-        {
-            state = eMergeArrayFailed;
-            return transferSize;
-        }
-
-		switch (LynxType::endianness())
+		if ((_dataType > eInvalidType) && (_dataType < eString))
 		{
-		case LynxLib::eBigEndian:
-            for (int i = 0; i < localSize; i++)
+			transferSize = this->transferSize();
+			int localSize = this->localSize();
+
+			LynxByteArray tempBuffer(transferSize);
+			buffer.subList(tempBuffer, startIndex, (startIndex + transferSize - 1));
+
+			int count = mergeArray(tempBuffer, localSize);
+
+			if (count != localSize)
 			{
-                _data.bytes[int(SIZE_64) - i - 1] = tempBuffer.at(i);
+				state = eMergeArrayFailed;
+				return transferSize;
 			}
-			break;
-		case LynxLib::eLittleEndian:
-            for (int i = 0; i < localSize; i++)
+
+			switch (LynxType::endianness())
 			{
-                _data.bytes[i] = tempBuffer.at(i);
+			case LynxLib::eBigEndian:
+				for (int i = 0; i < localSize; i++)
+				{
+					_var->bytes[int(SIZE_64) - i - 1] = tempBuffer.at(i);
+				}
+				break;
+			case LynxLib::eLittleEndian:
+				for (int i = 0; i < localSize; i++)
+				{
+					_var->bytes[i] = tempBuffer.at(i);
+				}
+				break;
+			default:
+				state = eEndiannessNotSet;
+				return 0;
 			}
-			break;
-		default:
-            state = eEndiannessNotSet;
-			return 0;
 		}
+		else if (_dataType == eString)
+		{
+			transferSize = int(buffer.at(startIndex)); // If it's a string the first byte should specify the size
+
+			_str->clear();
+			_str->append(&buffer.at(startIndex + 1), transferSize);
+			transferSize++; // Increment transfersize for the return variable to be correct
+		}
+		else
+			return 0;
 
         return transferSize;
 	}
 
-	int LynxType::localSize() const { return LynxLib::localSize(_dataType); }
+	int LynxType::localSize() const 
+	{
+		if ((_dataType > eInvalidType) && (_dataType < eString))
+			return LynxLib::localSize(_dataType);
+		else if (_dataType == eString)
+			return _str->count();
+		else
+			return 0;
+	}
 
-	int LynxType::transferSize() const { return LynxLib::transferSize(_dataType); }
+	int LynxType::transferSize() const 
+	{
+		if ((_dataType > eInvalidType) && (_dataType < eString))
+			return LynxLib::transferSize(_dataType);
+		else if (_dataType == eString)
+			if (_str->count() > 255) // maximum string size
+				return 256;
+			else
+				return (_str->count() + 1); // Add one for the size specifier
+		else
+			return 0;
+	}
 
 	//-----------------------------------------------------------------------------------------------------------
 	//-------------------------------------- Static Functions ---------------------------------------------------
@@ -177,6 +717,13 @@ namespace LynxLib
 		}
 	
 		return 0;
+	}
+
+	LynxString operator+(const char * const otherCharArray, const LynxString & otherString)
+	{
+		LynxString temp(otherCharArray);
+		temp.append(otherString);
+		return temp;
 	}
 
 	int splitArray(LynxByteArray & buffer, int desiredSize)
@@ -264,8 +811,8 @@ namespace LynxLib
 
 	LynxStructure::LynxStructure(int size) : LynxList(size)
 	{
-		_transferSize = 0;
-		_localSize = 0;
+		// _transferSize = 0;
+		// _localSize = 0;
 		_structId = -1;
 	}
 
@@ -353,10 +900,11 @@ namespace LynxLib
 
 	LynxId LynxStructure::addVariable(int structIndex, E_LynxDataType dataType)
 	{
-		this->append(LynxType(dataType));
+		this->append();
+		this->last().init(dataType);
 
-		_transferSize += this->last().transferSize();
-		_localSize += this->last().localSize();
+		//_transferSize += this->last().transferSize();
+		//_localSize += this->last().localSize();
 
 		return LynxId(structIndex, (_count - 1));
 	}
@@ -365,7 +913,14 @@ namespace LynxLib
 	{
 		if (index < 0) // All variables
 		{
-            return _transferSize;
+			int tempSize = 0;
+
+			for (int i = 0; i < _count; i++)
+			{
+				tempSize += _data[i].transferSize();
+			}
+
+            return tempSize;
 		}
 		else if (index >= _count) // Out of bounds
 		{
@@ -381,7 +936,14 @@ namespace LynxLib
 	{
 		if (variableIndex < 0) // All variables
 		{
-			return _localSize;
+			int tempSize = 0;
+
+			for (int i = 0; i < _count; i++)
+			{
+				tempSize += _data[i].localSize();
+			}
+
+			return tempSize;
 		}
 		else if (variableIndex >= _count) // Out of bounds
 		{
@@ -453,6 +1015,29 @@ namespace LynxLib
 		}
 
 		return this->at(lynxId.structIndex).at(lynxId.variableIndex);
+	}
+
+	void LynxManager::copy(const LynxId & source, const LynxId & target)
+	{
+		if ((source.variableIndex < 0) || (target.variableIndex < 0))
+			return;
+		
+		// Should probably find a better way to do this...
+		if 
+		(
+			(_data[target.structIndex][target.variableIndex].dataType() > eInvalidType) &&
+			(_data[target.structIndex][target.variableIndex].dataType() < eString) &&
+			(_data[source.structIndex][source.variableIndex].dataType() > eInvalidType) &&
+			(_data[source.structIndex][source.variableIndex].dataType() < eString)
+		)
+			_data[target.structIndex][target.variableIndex].var_i64() = _data[source.structIndex][source.variableIndex].var_i64();
+		
+		if
+		(
+			(_data[target.structIndex][target.variableIndex].dataType() == eString) &&
+			(_data[source.structIndex][source.variableIndex].dataType() == eString)
+		)
+			_data[target.structIndex][target.variableIndex].var_string() = _data[source.structIndex][source.structIndex].var_string();
 	}
 
 	// LynxByteArray LynxManager::toArray(const LynxId & lynxId) const
@@ -606,12 +1191,12 @@ namespace LynxLib
 		return temp;
 	}
 
-	LynxVar LynxManager::addVariable(const LynxId & lynxId, E_LynxDataType dataType)
+    LynxId LynxManager::addVariable(const LynxId & parentStruct, E_LynxDataType dataType)
 	{
-		 if ((lynxId.structIndex < 0) || (lynxId.structIndex > _count))
-		 	return LynxVar(this, LynxId(-1, -1));
+         if ((parentStruct.structIndex < 0) || (parentStruct.structIndex > _count))
+            return (LynxId(-1, -1));
 		 	
-		 return LynxVar(this, _data[lynxId.structIndex].addVariable(lynxId.structIndex, dataType));
+         return _data[parentStruct.structIndex].addVariable(parentStruct.structIndex, dataType);
 	}
 
 	int LynxManager::structVariableCount(int structIndex)
@@ -631,6 +1216,5 @@ namespace LynxLib
 		}
 		return -1;
 	}
-
 	// LynxManager Lynx;
 }
