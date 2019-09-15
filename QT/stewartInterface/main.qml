@@ -3,7 +3,6 @@ import QtQuick.Window 2.2
 import backend 1.1
 import QtQuick.Controls 2.12
 
-
 Window
 {
     visible: true
@@ -14,6 +13,32 @@ Window
     BackEnd
     {
         id: backEnd
+        onGetData: {
+            switch (variable)
+            {
+            case BackEnd.Ex:
+            dialX.value = input
+            break;
+
+            case BackEnd.Ey:
+            dialY.value = input
+            break;
+
+            case BackEnd.Ez:
+            dialZ.value = input
+            break;
+            case BackEnd.Eroll:
+            dialRoll.value = input
+            break;
+            case BackEnd.Epitch:
+            dialPitch.value = input
+            break;
+            case BackEnd.Eyaw:
+            dialYaw.value = input
+            break;
+            }
+        }
+
         onClearPortList:
         {
             portListModel.clear()
@@ -28,38 +53,9 @@ Window
     {
         spacing: 10
         padding: 20
-        width: 200
+        width: 640
+        height: 480
 
-        Row
-        {
-            width: parent.width
-            spacing: 10
-        }
-
-        Dial
-        {
-            id:setX
-            from: -180
-            to:180
-            value: 0
-            onPressedChanged:
-            {
-
-                if (!pressed)
-                {
-                    backEnd.setData(value,BackEnd.Ex)
-                }
-
-            }
-        }
-
-        Button
-        {
-            width: parent.width
-            id: button
-            text: qsTr("Send all")
-            onClicked: backEnd.sendData()
-        }
 
 
         Row
@@ -73,10 +69,10 @@ Window
                 // currentIndex: -1
                 model:
                     ListModel
-                    {
-                        id: portListModel
-                        ListElement{text: qsTr("Select port")}
-                    }
+                {
+                    id: portListModel
+                    ListElement{text: qsTr("Select port")}
+                }
 
                 onActivated:
                 {
@@ -125,13 +121,103 @@ Window
             }
         }
 
-        Label {
-            id: labelPitch
-            text: qsTr("Pitch: ") + backEnd.pitch + qsTr(" degrees")
+
+        Row {
+            id: row1
+            width: 200
+            height: 40
+
+            Switch {
+                id: element
+                y: 0
+                text: qsTr("Gyro Compensation")
+                onClicked: backEnd.gyroConnectButtonClicked(checked)
+            }
         }
-        Label {
-            id: labelRoll
-            text: qsTr("Roll: ") + backEnd.roll + qsTr(" degrees")
+
+        Row {
+            id: row
+            width: 400
+            height: 100
+            MyDial{
+                id:dialX
+                variable: BackEnd.Ex
+                label: "X"
+
+            }
+            MyDial{
+                id:dialY
+                variable: BackEnd.Ey
+                label: "Y"
+
+            }
+            MyDial{
+                id:dialZ
+                variable: BackEnd.Ez
+                label: "Z"
+
+            }
+            MyDial{
+                id:dialRoll
+                variable: BackEnd.Eroll
+                label: "R"
+
+            }
+            MyDial{
+                id:dialPitch
+                variable: BackEnd.Epitch
+                label: "P"
+
+            }
+            MyDial{
+                id:dialYaw
+                variable: BackEnd.Eyaw
+                label: "W"
+
+            }
+
+//            Dial
+//            {
+//                id:setX
+//                from: -180
+//                to:180
+//                value: 0
+//                onPressedChanged:
+//                {
+
+//                    if (!pressed)
+//                    {
+//                        backEnd.setData(value,BackEnd.Ex)
+//                    }
+
+//                }
+//            }
+        }
+
+        Column {
+            id: column
+            width: 200
+            height: 400
+
+            Label {
+                id: labelPitch
+                text: qsTr("Pitch: ") + backEnd.pitch + qsTr(" degrees")
+                horizontalAlignment: Text.AlignHCenter
+                font.pointSize: 15
+            }
+
+            Label {
+                id: labelRoll
+                text: qsTr("Roll: ") + backEnd.roll + qsTr(" degrees")
+                horizontalAlignment: Text.AlignHCenter
+                font.pointSize: 15
+            }
+
+            Label {
+                id: labelYaw
+                text: qsTr("Yaw: ") + backEnd.yaw + qsTr(" degrees")
+                font.pointSize: 15
+            }
         }
 
     }

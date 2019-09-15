@@ -38,7 +38,7 @@ struct StewartFeedback
 {
     StewartFeedback(LynxManager & lynx, char _structId,const LynxString & description) :
         _lynxId(lynx.addStructure(_structId,description,10)),
-        sta(lynx,_lynxId),
+        status(lynx,_lynxId),
         feedbackX(lynx,_lynxId,"Feedback X [cm]"),
         feedbackY(lynx,_lynxId),
         feedbackZ(lynx,_lynxId),
@@ -51,7 +51,7 @@ struct StewartFeedback
     {}
 
     LYNX_STRUCTURE_MACRO
-LynxVar_u8 sta;
+LynxVar_u8 status;
     LynxVar_float feedbackX;
     LynxVar_float feedbackY;
     LynxVar_float feedbackZ;
@@ -65,3 +65,4 @@ LynxVar_u8 sta;
 };
 
 #endif // !STEWART_CONTROL
+

@@ -15,7 +15,7 @@ uint8_t fifoBuffer[64];
 Quaternion q;
 VectorFloat gravity;
 float ypr[3];
-LynxManager lynx(0x02,"Stewie");
+LynxManager lynx(0x02);
 
 LynxUartArduino uart(lynx);
 
@@ -72,7 +72,7 @@ bool valid, newMode;
 void SendResponse();
 void GetData();
 void AlphaCalc(float x, float y, float z, float phi, float theta, float psi);
-float yawZero=0.0;
+
 Servo Servo1, Servo2, Servo3, Servo4, Servo5, Servo6;
 
 int timePin = 46;
@@ -98,7 +98,7 @@ void setup()
 
   pinMode(timePin, OUTPUT);
   digitalWrite(timePin, LOW);
-  uart.open(0, 115200);
+  uart.open(0, 19200);
   //Serial.begin(9600);//Starts serial via USB
   //Serial1.begin(115200);//Starts serial via RX1/TX1 for BLE communication
   Servo1.attach(2);  Servo2.attach(3);  Servo3.attach(5);  Servo4.attach(6);  Servo5.attach(7);  Servo6.attach(8);
@@ -127,21 +127,7 @@ void loop()
     updateInfo = uart.update();
     uart.periodicTransmitUpdate();
     if(gyroCompensationActive)
-{
-  
-  stewartFeedback.feedbackRoll = 1.5*stewartFeedback.imuPitch;
-      stewartFeedback.feedbackPitch = 1.5*stewartFeedback.imuRoll;
-      stewartFeedback.feedbackYaw = (stewartFeedback.imuYaw - yawZero*180/pi);
-}
-else
-{
-      stewartFeedback.feedbackRoll = stewartControl.setpointRoll;
-      stewartFeedback.feedbackPitch = stewartControl.setpointPitch;
-      stewartFeedback.feedbackYaw = stewartControl.setpointYaw;
-}
-    if(gyroCompensationActive)
-    
-    AlphaCalc(stewartControl.setpointX,stewartControl.setpointY,stewartControl.setpointZ+12.0,1.5*stewartFeedback.imuPitch*pi/180.0,1.5*stewartFeedback.imuRoll*pi/180.0,1.5*(stewartFeedback.imuYaw*pi/180.0 - yawZero));
+    AlphaCalc(stewartControl.setpointX,stewartControl.setpointY,stewartControl.setpointZ+12.0,1.1*stewartFeedback.imuPitch*pi/180.0,1.1*stewartFeedback.imuRoll*pi/180.0, stewartControl.setpointYaw);
     else
     AlphaCalc(stewartControl.setpointX,stewartControl.setpointY,stewartControl.setpointZ+12.0, stewartControl.setpointRoll, stewartControl.setpointPitch, stewartControl.setpointYaw);
          Servo1.write(Offset_1 + 90 + alpha1*90/pi);
@@ -164,7 +150,6 @@ else
         {
           stewartFeedback.sta =  stewartFeedback.sta | gyroCompensation;
           gyroCompensationActive = true;
-          yawZero=stewartFeedback.imuYaw*pi/180.0;
         }
         if(stewartControl.command == 11)
         {
@@ -173,9 +158,25 @@ else
         }
         
       }
+  
+
       stewartFeedback.feedbackX = stewartControl.setpointX;
+
       stewartFeedback.feedbackY = stewartControl.setpointY;
+
       stewartFeedback.feedbackZ = stewartControl.setpointZ;
+
+      stewartFeedback.feedbackRoll = stewartControl.setpointRoll;
+
+      stewartFeedback.feedbackPitch = stewartControl.setpointPitch;
+
+      stewartFeedback.feedbackYaw = stewartControl.setpointYaw;
+
+   
+
+      
+
+
       uart.send(stewartFeedback.lynxId());
 
     }//endif
@@ -219,7 +220,7 @@ else
 
       
       
-      stewartFeedback.imuYaw = -ypr[0]*180/PI;
+      stewartFeedback.imuYaw = ypr[0];
 
       
             if(ypr[1]*180/PI > 120)

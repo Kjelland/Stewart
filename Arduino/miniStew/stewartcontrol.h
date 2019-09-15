@@ -3,22 +3,29 @@
 
 #include "lynxstructure.h"
 
+
 using namespace LynxLib;
+enum commands
+{
+    on = (1<<0),
+    gyroCompensation = (1<<1),
+};
 
 struct StewartControl
 {
-    StewartControl(LynxManager & lynx, char _structId) :
-        _lynxId(lynx.addStructure(_structId,6)),
+    StewartControl(LynxManager & lynx, char _structId, const LynxString & description) :
+        _lynxId(lynx.addStructure(_structId,description, 7)),
+        command(lynx,_lynxId),
         setpointX(lynx,_lynxId),
         setpointY(lynx,_lynxId),
         setpointZ(lynx,_lynxId),
         setpointRoll(lynx,_lynxId),
         setpointPitch(lynx,_lynxId),
         setpointYaw(lynx,_lynxId)
-	{}
+    {}
 
     LYNX_STRUCTURE_MACRO
-
+    LynxVar_u8 command;
     LynxVar_float setpointX;
     LynxVar_float setpointY;
     LynxVar_float setpointZ;
@@ -29,9 +36,10 @@ struct StewartControl
 };
 struct StewartFeedback
 {
-    StewartFeedback(LynxManager & lynx, char _structId) :
-        _lynxId(lynx.addStructure(_structId,9)),
-        feedbackX(lynx,_lynxId),
+    StewartFeedback(LynxManager & lynx, char _structId,const LynxString & description) :
+        _lynxId(lynx.addStructure(_structId,description,10)),
+        sta(lynx,_lynxId),
+        feedbackX(lynx,_lynxId,"Feedback X [cm]"),
         feedbackY(lynx,_lynxId),
         feedbackZ(lynx,_lynxId),
         feedbackRoll(lynx,_lynxId),
@@ -43,7 +51,7 @@ struct StewartFeedback
     {}
 
     LYNX_STRUCTURE_MACRO
-
+LynxVar_u8 sta;
     LynxVar_float feedbackX;
     LynxVar_float feedbackY;
     LynxVar_float feedbackZ;
@@ -57,3 +65,4 @@ struct StewartFeedback
 };
 
 #endif // !STEWART_CONTROL
+

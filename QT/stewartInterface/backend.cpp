@@ -4,13 +4,15 @@ BackEnd::BackEnd(QObject *parent) :
     QObject(parent),
     _lynx(0x25),
     _uart(_lynx),
-    _controlDatagram(_lynx, 0x22),
-    _feedbackDatagram(_lynx, 0x23)
+    _controlDatagram(_lynx, 0x22,"Control Datagram"),
+    _feedbackDatagram(_lynx, 0x23,"Feedback Datagram")
 {
    //  _uart.open(4, 115200);
 
     connect(_uart.portPointer(), SIGNAL(readyRead()), this, SLOT(readData()));
 }
+
+
 
 void BackEnd::sendData()
 {
@@ -28,13 +30,36 @@ void BackEnd::readData()
 
         if(_receiveInfo.state == eNewDataReceived)
         {
-
+            qDebug()<<_feedbackDatagram.sta;
+            qDebug()<<"XYZ: "<<_feedbackDatagram.feedbackX<<" : "<<_feedbackDatagram.feedbackY<<" : "<<_feedbackDatagram.feedbackZ;
+            qDebug()<<"RPY: "<<_feedbackDatagram.feedbackRoll<<" : "<<_feedbackDatagram.feedbackPitch<<" : "<<_feedbackDatagram.feedbackYaw;
+            qDebug()<<"roll: "<<_feedbackDatagram.imuRoll<<" Pitch: "<<_feedbackDatagram.imuPitch<<" Yaw:"<<_feedbackDatagram.imuYaw;
             emit rollChanged();
             emit pitchChanged();
+            emit yawChanged();
+            if(updateDial || _feedbackDatagram.sta==2)
+            {
+                this->getData(_feedbackDatagram.feedbackX,Ex);
+                this->getData(_feedbackDatagram.feedbackY,Ey);
+                this->getData(_feedbackDatagram.feedbackZ,Ez);
+                this->getData(_feedbackDatagram.feedbackRoll,Eroll);
+                this->getData(_feedbackDatagram.feedbackPitch,Epitch);
+                this->getData(_feedbackDatagram.feedbackYaw,Eyaw);
+                updateDial=false;
+            }
+
         }
     }
 }
-
+void BackEnd::gyroConnectButtonClicked(bool state)
+{
+    if(state)
+        _controlDatagram.command = 10;
+    else {
+        _controlDatagram.command = 11;
+    }
+     _uart.send(_controlDatagram.command.lynxId());
+}
 void BackEnd::refreshPortList()
 {
     this->clearPortList();
