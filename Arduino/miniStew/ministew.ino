@@ -108,17 +108,17 @@ void loop()
    // Servo5.write(Offset_5 + 90 + alpha5*90/pi);
    // Servo6.write(Offset_6 + 90 + alpha6*90/pi);
 
-      stewartFeedback.feedbackX = alpha1;
+      stewartFeedback.feedbackX = stewartControl.setpointX;
 
-      stewartFeedback.feedbackY = alpha2;
+      stewartFeedback.feedbackY = stewartControl.setpointY;
  
-      stewartFeedback.feedbackZ = alpha3;
+      stewartFeedback.feedbackZ = stewartControl.setpointZ;
 
-      stewartFeedback.feedbackRoll = alpha4;
+      stewartFeedback.feedbackRoll = stewartControl.setpointRoll;
 
-      stewartFeedback.feedbackPitch = alpha5;
+      stewartFeedback.feedbackPitch = stewartControl.setpointPitch;
 
-      stewartFeedback.feedbackYaw = alpha6;
+      stewartFeedback.feedbackYaw = stewartControl.setpointYaw;
 
       stewartFeedback.imuRoll = 1.2;
 
