@@ -143,18 +143,24 @@ Window
                 id:dialX
                 variable: BackEnd.Ex
                 label: "X"
+                from: -2
+                to:2
 
             }
             MyDial{
                 id:dialY
                 variable: BackEnd.Ey
                 label: "Y"
+                from: -2
+                to:2
 
             }
             MyDial{
                 id:dialZ
                 variable: BackEnd.Ez
                 label: "Z"
+                from: -2
+                to:2
 
             }
             MyDial{

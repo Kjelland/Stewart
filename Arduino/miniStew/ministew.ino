@@ -144,6 +144,7 @@ else
     AlphaCalc(stewartControl.setpointX,stewartControl.setpointY,stewartControl.setpointZ+12.0,1.5*stewartFeedback.imuPitch*pi/180.0,1.5*stewartFeedback.imuRoll*pi/180.0,1.5*(stewartFeedback.imuYaw*pi/180.0 - yawZero));
     else
     AlphaCalc(stewartControl.setpointX,stewartControl.setpointY,stewartControl.setpointZ+12.0, stewartControl.setpointRoll, stewartControl.setpointPitch, stewartControl.setpointYaw);
+    
          Servo1.write(Offset_1 + 90 + alpha1*90/pi);
       Servo2.write(Offset_2 + 90 + alpha2*90/pi);
       Servo3.write(Offset_3 + 90 + alpha3*90/pi);
