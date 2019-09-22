@@ -19,12 +19,14 @@ SOURCES += \
         "../../../LynxStructure/lynxiodevice.cpp" \
         "../../../LynxStructure/lynxstructure.cpp" \
         "../../../LynxStructure/lynxuartqt.cpp" \
+        "../../../LynxStructure/lynxlistclasses.cpp" \
 
 RESOURCES += qml.qrc
 
 HEADERS +=  "../../../LynxStructure/lynxstructure.h" \
             "../../../LynxStructure/lynxiodevice.h" \
             "../../../LynxStructure/lynxuartqt.h" \
+            "../../../LynxStructure/lynxlistclasses.h" \
             "../../Arduino/miniStew/datagram/stewartcontrol.h"\
     backend.h
 

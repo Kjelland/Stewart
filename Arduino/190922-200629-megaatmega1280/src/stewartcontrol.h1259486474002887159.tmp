@@ -16,12 +16,12 @@ struct StewartControl
     StewartControl(LynxManager & lynx, char _structId, const LynxString & description) :
         _lynxId(lynx.addStructure(_structId,description, 7)),
         command(lynx,_lynxId),
-        setpointX(lynx,_lynxId,"Setpoint X [cm]"),
-        setpointY(lynx,_lynxId,"Setpoint Y [cm]"),
-        setpointZ(lynx,_lynxId,"Setpoint Z [cm]"),
-        setpointRoll(lynx,_lynxId,"Setpoint Roll [degree]"),
-        setpointPitch(lynx,_lynxId,"Setpoint Pitch [degree]"),
-        setpointYaw(lynx,_lynxId,"Setpoint Yaw [degree]")
+        setpointX(lynx,_lynxId),
+        setpointY(lynx,_lynxId),
+        setpointZ(lynx,_lynxId),
+        setpointRoll(lynx,_lynxId),
+        setpointPitch(lynx,_lynxId),
+        setpointYaw(lynx,_lynxId)
     {}
 
     LYNX_STRUCTURE_MACRO
@@ -38,20 +38,20 @@ struct StewartFeedback
 {
     StewartFeedback(LynxManager & lynx, char _structId,const LynxString & description) :
         _lynxId(lynx.addStructure(_structId,description,10)),
-        sta(lynx,_lynxId),
+        status(lynx,_lynxId),
         feedbackX(lynx,_lynxId,"Feedback X [cm]"),
-        feedbackY(lynx,_lynxId,"Feedback Y [cm]"),
-        feedbackZ(lynx,_lynxId,"Feedback Z [cm]"),
-        feedbackRoll(lynx,_lynxId,"Feedback Roll [cm]"),
-        feedbackPitch(lynx,_lynxId,"Feedback Pitch [cm]"),
-        feedbackYaw(lynx,_lynxId,"Feedback Yaw [cm]"),
-        imuRoll(lynx,_lynxId,"IMU Roll [degree]"),
-        imuPitch(lynx,_lynxId,"IMU Pitch [degree]"),
-        imuYaw(lynx,_lynxId,"IMU Yaw [degree]")
+        feedbackY(lynx,_lynxId),
+        feedbackZ(lynx,_lynxId),
+        feedbackRoll(lynx,_lynxId),
+        feedbackPitch(lynx,_lynxId),
+        feedbackYaw(lynx,_lynxId),
+        imuRoll(lynx,_lynxId),
+        imuPitch(lynx,_lynxId),
+        imuYaw(lynx,_lynxId)
     {}
 
     LYNX_STRUCTURE_MACRO
-LynxVar_u8 sta;
+LynxVar_u8 status;
     LynxVar_float feedbackX;
     LynxVar_float feedbackY;
     LynxVar_float feedbackZ;

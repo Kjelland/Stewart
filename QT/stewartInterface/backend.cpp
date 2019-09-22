@@ -30,14 +30,14 @@ void BackEnd::readData()
 
         if(_receiveInfo.state == eNewDataReceived)
         {
-            qDebug()<<_feedbackDatagram.sta;
-            qDebug()<<"XYZ: "<<_feedbackDatagram.feedbackX<<" : "<<_feedbackDatagram.feedbackY<<" : "<<_feedbackDatagram.feedbackZ;
-            qDebug()<<"RPY: "<<_feedbackDatagram.feedbackRoll<<" : "<<_feedbackDatagram.feedbackPitch<<" : "<<_feedbackDatagram.feedbackYaw;
-            qDebug()<<"roll: "<<_feedbackDatagram.imuRoll<<" Pitch: "<<_feedbackDatagram.imuPitch<<" Yaw:"<<_feedbackDatagram.imuYaw;
+            //qDebug()<<_feedbackDatagram.sta;
+            //qDebug()<<"XYZ: "<<_feedbackDatagram.feedbackX<<" : "<<_feedbackDatagram.feedbackY<<" : "<<_feedbackDatagram.feedbackZ;
+            //qDebug()<<"RPY: "<<_feedbackDatagram.feedbackRoll<<" : "<<_feedbackDatagram.feedbackPitch<<" : "<<_feedbackDatagram.feedbackYaw;
+            //qDebug()<<"roll: "<<_feedbackDatagram.imuRoll<<" Pitch: "<<_feedbackDatagram.imuPitch<<" Yaw:"<<_feedbackDatagram.imuYaw;
             emit rollChanged();
             emit pitchChanged();
             emit yawChanged();
-            if(updateDial || _feedbackDatagram.sta==2)
+            if(updateDial || _feedbackDatagram.sta & (1<<3))
             {
                 this->getData(_feedbackDatagram.feedbackX,Ex);
                 this->getData(_feedbackDatagram.feedbackY,Ey);
@@ -51,8 +51,20 @@ void BackEnd::readData()
         }
     }
 }
+
+void BackEnd::enableYawButtonClicked(bool state)
+{
+    qDebug()<<"state is: "<<state;
+    if(state)
+        _controlDatagram.command = 12;
+    else {
+        _controlDatagram.command = 13;
+    }
+     _uart.send(_controlDatagram.command.lynxId());
+}
 void BackEnd::gyroConnectButtonClicked(bool state)
 {
+    qDebug()<<"state is: "<<state;
     if(state)
         _controlDatagram.command = 10;
     else {

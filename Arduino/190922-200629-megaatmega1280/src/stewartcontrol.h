@@ -4,7 +4,7 @@
 #include "lynxstructure.h"
 
 
-using namespace LynxLib;
+//using namespace LynxLib;
 enum commands
 {
     on = (1<<0),
@@ -15,7 +15,7 @@ struct StewartControl
 {
     StewartControl(LynxManager & lynx, char _structId, const LynxString & description) :
         _lynxId(lynx.addStructure(_structId,description, 7)),
-        command(lynx,_lynxId),
+        command(lynx,_lynxId,"Command"),
         setpointX(lynx,_lynxId,"Setpoint X [cm]"),
         setpointY(lynx,_lynxId,"Setpoint Y [cm]"),
         setpointZ(lynx,_lynxId,"Setpoint Z [cm]"),
@@ -38,7 +38,7 @@ struct StewartFeedback
 {
     StewartFeedback(LynxManager & lynx, char _structId,const LynxString & description) :
         _lynxId(lynx.addStructure(_structId,description,10)),
-        sta(lynx,_lynxId),
+        sta(lynx,_lynxId,"Status"),
         feedbackX(lynx,_lynxId,"Feedback X [cm]"),
         feedbackY(lynx,_lynxId,"Feedback Y [cm]"),
         feedbackZ(lynx,_lynxId,"Feedback Z [cm]"),

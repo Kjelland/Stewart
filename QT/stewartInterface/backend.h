@@ -17,6 +17,7 @@ class BackEnd : public QObject
     Q_PROPERTY(float roll READ roll NOTIFY rollChanged)
     Q_PROPERTY(float pitch READ pitch  NOTIFY pitchChanged)
     Q_PROPERTY(float yaw READ yaw  NOTIFY yawChanged)
+    Q_PROPERTY(int sta READ sta  NOTIFY yawChanged)
 
 
 
@@ -54,7 +55,7 @@ public:
     float pitch() const { return _feedbackDatagram.imuPitch; }
     float yaw() const { return _feedbackDatagram.imuYaw; }
 
-
+    int sta() const {return _feedbackDatagram.sta;}
 
 
 
@@ -110,6 +111,7 @@ public slots:
     void connectButtonClicked();
     bool uartConnected() { return _uart.opened(); }
     void gyroConnectButtonClicked(bool state);
+    void enableYawButtonClicked(bool state);
 };
 
 #endif // BACKEND_H

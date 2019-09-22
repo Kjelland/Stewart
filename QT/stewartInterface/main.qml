@@ -131,8 +131,24 @@ Window
                 id: element
                 y: 0
                 text: qsTr("Gyro Compensation")
-                onClicked: backEnd.gyroConnectButtonClicked(checked)
+                onClicked: backEnd.gyroConnectButtonClicked(!(backEnd.sta & (1<<3)))
+                checked: backEnd.sta & (1<<3)
             }
+            Switch {
+                id: useYawButton
+                y: 0
+                text: qsTr("Enable Yaw Compentation")
+                onClicked: backEnd.enableYawButtonClicked(!(backEnd.sta & (1<<2)))
+                checked: backEnd.sta & (1<<2)
+            }
+            Switch {
+                id: imuInitDone
+                y: 0
+                text: qsTr("Gyro Init done")
+                checked: backEnd.sta & (1<<4)
+                checkable: false
+            }
+
         }
 
         Row {
@@ -167,19 +183,23 @@ Window
                 id:dialRoll
                 variable: BackEnd.Eroll
                 label: "R"
+                from: -30
+                to:30
 
             }
             MyDial{
                 id:dialPitch
                 variable: BackEnd.Epitch
                 label: "P"
-
+                from: -30
+                to:30
             }
             MyDial{
                 id:dialYaw
                 variable: BackEnd.Eyaw
                 label: "W"
-
+                from: -30
+                to:30
             }
 
 //            Dial
@@ -207,21 +227,21 @@ Window
 
             Label {
                 id: labelPitch
-                text: qsTr("Pitch: ") + backEnd.pitch + qsTr(" degrees")
+                text: qsTr("Pitch: ") + backEnd.pitch.toFixed(2) + qsTr(" degrees")
                 horizontalAlignment: Text.AlignHCenter
                 font.pointSize: 15
             }
 
             Label {
                 id: labelRoll
-                text: qsTr("Roll: ") + backEnd.roll + qsTr(" degrees")
+                text: qsTr("Roll: ") + backEnd.roll.toFixed(2) + qsTr(" degrees")
                 horizontalAlignment: Text.AlignHCenter
                 font.pointSize: 15
             }
 
             Label {
                 id: labelYaw
-                text: qsTr("Yaw: ") + backEnd.yaw + qsTr(" degrees")
+                text: qsTr("Yaw: ") + backEnd.yaw.toFixed(2) + qsTr(" degrees")
                 font.pointSize: 15
             }
         }
